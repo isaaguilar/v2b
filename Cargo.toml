@@ -1,0 +1,9 @@
+[package]
+name = "v2b"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lyon_geom = "1.0.5"
+tracing = "0.1.40"
+usvg = "0.42.0"
