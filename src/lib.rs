@@ -2,6 +2,8 @@ use lyon_geom::{cubic_bezier::CubicBezierSegment, quadratic_bezier::QuadraticBez
 use std::{fs::File, io::Read};
 use tracing::debug;
 use usvg::{tiny_skia_path::PathSegment, Node, Path, Tree};
+pub mod assets;
+pub use assets::vector::{SvgAsset, SvgAssetLoader};
 
 const TOLERANCE: f32 = 0.25;
 
@@ -63,13 +65,18 @@ fn collect_paths_in_nodes(parent: &usvg::Group) -> Vec<Path> {
         })
 }
 
-pub fn get_paths(
+pub fn load(
     filename: String,
-) -> Result<Vec<(f32, f32)>, Box<dyn std::error::Error + Send + Sync + 'static>> {
-    let mut buf: Vec<(f32, f32)> = vec![];
+) -> Result<Vec<u8>, Box<dyn std::error::Error + Send + Sync + 'static>> {
     let mut svg_buf = Vec::default();
     let _ = File::open(filename)?.read_to_end(&mut svg_buf)?;
+    Ok(svg_buf)
+}
 
+pub fn get_paths(
+    svg_buf: Vec<u8>,
+) -> Result<Vec<(f32, f32)>, Box<dyn std::error::Error + Send + Sync + 'static>> {
+    let mut buf: Vec<(f32, f32)> = vec![];
     let tree = Tree::from_data(&svg_buf, &usvg::Options::default())?;
     debug!(?tree);
     let raw_height = tree.size().height();
