@@ -1,16 +1,17 @@
 use bevy::asset::io::Reader;
 use bevy::asset::{Asset, AssetLoader, AsyncReadExt, LoadContext};
 use bevy::prelude::TypePath;
+use bevy::prelude::*;
 use thiserror::Error;
 
-#[derive(Asset, TypePath, Debug)]
+#[derive(Asset, TypePath, Debug, Default)]
 pub struct SvgAsset {
-    pub points: Vec<(f32, f32)>,
+    pub points: Vec<Vec2>,
 }
 
 impl SvgAsset {
     fn new(svg_buf: Vec<u8>) -> Self {
-        let points = crate::get_paths(svg_buf).unwrap(); // todo err
+        let points = crate::from_path(svg_buf).unwrap(); // todo err
         Self { points }
     }
 }
@@ -46,5 +47,27 @@ impl AssetLoader for SvgAssetLoader {
 
     fn extensions(&self) -> &[&str] {
         &["svg"]
+    }
+}
+
+pub struct SvgPlugin;
+
+impl Plugin for SvgPlugin {
+    fn build(&self, app: &mut App) {
+        app.init_asset::<SvgAsset>()
+            .init_asset_loader::<SvgAssetLoader>();
+    }
+}
+
+/// A Bevy `Bundle` to represent a shape.
+#[allow(missing_docs)]
+#[derive(Bundle)]
+pub struct PathBundle {
+    pub handler: Handle<SvgAsset>,
+}
+
+impl Default for PathBundle {
+    fn default() -> Self {
+        Self { handler: default() }
     }
 }

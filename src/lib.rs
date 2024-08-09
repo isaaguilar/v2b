@@ -1,22 +1,23 @@
+use bevy::prelude::*;
 use lyon_geom::{cubic_bezier::CubicBezierSegment, quadratic_bezier::QuadraticBezierSegment};
 use std::{fs::File, io::Read};
-use tracing::debug;
 use usvg::{tiny_skia_path::PathSegment, Node, Path, Tree};
+
 pub mod assets;
-pub use assets::vector::{SvgAsset, SvgAssetLoader};
+pub use assets::svg::{PathBundle, SvgAsset, SvgAssetLoader, SvgPlugin};
 
 const TOLERANCE: f32 = 0.25;
 
-fn write_path(path: &usvg::tiny_skia_path::Path, buf: &mut Vec<(f32, f32)>, normalize: f32) {
+fn write_points(path: &usvg::tiny_skia_path::Path, buf: &mut Vec<Vec2>, normalize: f32) {
     let mut last = (0.0, 0.0);
     for seg in path.segments() {
         match seg {
             PathSegment::MoveTo(p) => {
-                buf.push((p.x, normalize - p.y));
+                buf.push(Vec2::new(p.x, normalize - p.y));
                 last = (p.x, p.y);
             }
             PathSegment::LineTo(p) => {
-                buf.push((p.x, normalize - p.y));
+                buf.push(Vec2::new(p.x, normalize - p.y));
                 last = (p.x, p.y);
             }
             PathSegment::QuadTo(p1, p) => {
@@ -26,7 +27,7 @@ fn write_path(path: &usvg::tiny_skia_path::Path, buf: &mut Vec<(f32, f32)>, norm
                     to: (p.x, p.y).into(),
                 };
                 for pt in q.flattened(TOLERANCE) {
-                    buf.push((pt.x, normalize - pt.y));
+                    buf.push(Vec2::new(pt.x, normalize - pt.y));
                 }
                 last = (p.x, p.y);
             }
@@ -38,7 +39,7 @@ fn write_path(path: &usvg::tiny_skia_path::Path, buf: &mut Vec<(f32, f32)>, norm
                     to: (p.x, p.y).into(),
                 };
                 for pt in c.flattened(TOLERANCE) {
-                    buf.push((pt.x, normalize - pt.y));
+                    buf.push(Vec2::new(pt.x, normalize - pt.y));
                 }
                 last = (p.x, p.y);
             }
@@ -73,10 +74,9 @@ pub fn load(
     Ok(svg_buf)
 }
 
-pub fn get_paths(
+pub fn from_path(
     svg_buf: Vec<u8>,
-) -> Result<Vec<(f32, f32)>, Box<dyn std::error::Error + Send + Sync + 'static>> {
-    let mut buf: Vec<(f32, f32)> = vec![];
+) -> Result<Vec<Vec2>, Box<dyn std::error::Error + Send + Sync + 'static>> {
     let tree = Tree::from_data(&svg_buf, &usvg::Options::default())?;
     debug!(?tree);
     let raw_height = tree.size().height();
@@ -84,8 +84,9 @@ pub fn get_paths(
     let paths = collect_paths_in_nodes(tree.root());
     debug!(?paths);
 
+    let mut buf: Vec<Vec2> = vec![];
     for path in paths {
-        write_path(path.data(), &mut buf, raw_height / 1.3333313);
+        write_points(path.data(), &mut buf, raw_height / 1.3333313);
     }
 
     Ok(buf)
