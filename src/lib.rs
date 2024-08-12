@@ -18,7 +18,7 @@ fn write_points(
     let scale_x = abs_transform.sx;
     let scale_y = abs_transform.sy;
     let transform_x = abs_transform.tx - abs_bounding_box.left();
-    let transform_y = abs_transform.ty - abs_bounding_box.bottom();
+    let transform_y = abs_transform.ty - abs_bounding_box.top();
 
     for seg in path.segments() {
         match seg {
@@ -101,7 +101,6 @@ pub fn from_path(
 ) -> Result<Vec<Vec2>, Box<dyn std::error::Error + Send + Sync + 'static>> {
     let tree = Tree::from_data(&svg_buf, &usvg::Options::default())?;
     debug!(?tree);
-    // let raw_height = tree.size().height();
 
     let paths = collect_paths_in_nodes(tree.root());
     debug!(?paths);

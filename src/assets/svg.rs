@@ -3,16 +3,48 @@ use bevy::asset::{Asset, AssetLoader, AsyncReadExt, LoadContext};
 use bevy::prelude::TypePath;
 use bevy::prelude::*;
 use thiserror::Error;
+use usvg::Tree;
 
 #[derive(Asset, TypePath, Debug, Default)]
 pub struct SvgAsset {
+    pub paths: Vec<SvgPath>,
+}
+
+#[derive(Debug, Default)]
+pub struct SvgPath {
     pub points: Vec<Vec2>,
+    pub translation: Vec2,
 }
 
 impl SvgAsset {
     fn new(svg_buf: Vec<u8>) -> Self {
-        let points = crate::from_path(svg_buf).unwrap(); // todo err
-        Self { points }
+        let mut paths = vec![];
+
+        let tree = Tree::from_data(&svg_buf, &usvg::Options::default()).unwrap(); // TODO err
+        debug!("{:#?}", tree);
+
+        let usvg_paths = crate::collect_paths_in_nodes(tree.root());
+        debug!(?usvg_paths);
+
+        for usvg_path in usvg_paths {
+            let mut buf: Vec<Vec2> = vec![];
+            crate::write_points(
+                usvg_path.data(),
+                &mut buf,
+                usvg_path.abs_transform(),
+                usvg_path.abs_bounding_box(),
+            );
+
+            paths.push(SvgPath {
+                points: buf,
+                translation: Vec2::new(
+                    usvg_path.abs_bounding_box().left(),
+                    usvg_path.abs_bounding_box().top(),
+                ),
+            });
+        }
+
+        Self { paths }
     }
 }
 
@@ -64,10 +96,14 @@ impl Plugin for SvgPlugin {
 #[derive(Bundle)]
 pub struct PathBundle {
     pub handler: Handle<SvgAsset>,
+    pub transform: Transform,
 }
 
 impl Default for PathBundle {
     fn default() -> Self {
-        Self { handler: default() }
+        Self {
+            handler: default(),
+            transform: default(),
+        }
     }
 }
