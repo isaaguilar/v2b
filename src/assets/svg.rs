@@ -20,7 +20,14 @@ impl SvgAsset {
     fn new(svg_buf: Vec<u8>) -> Self {
         let mut paths = vec![];
 
-        let tree = Tree::from_data(&svg_buf, &usvg::Options::default()).unwrap(); // TODO err
+        let tree = Tree::from_data(
+            &svg_buf,
+            &usvg::Options {
+                dpi: 96.0,
+                ..default()
+            },
+        )
+        .unwrap(); // TODO err
         debug!("{:#?}", tree);
 
         let usvg_paths = crate::collect_paths_in_nodes(tree.root());
