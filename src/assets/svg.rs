@@ -8,6 +8,7 @@ use usvg::Tree;
 #[derive(Asset, TypePath, Debug, Default)]
 pub struct SvgAsset {
     pub paths: Vec<SvgPath>,
+    pub dimensions: Vec2,
 }
 
 #[derive(Debug, Default)]
@@ -51,7 +52,12 @@ impl SvgAsset {
             });
         }
 
-        Self { paths }
+        let dimensions = Vec2::new(tree.size().width(), tree.size().height());
+
+        Self {
+            paths: paths,
+            dimensions: dimensions,
+        }
     }
 }
 
@@ -103,6 +109,7 @@ impl Plugin for SvgPlugin {
 #[derive(Bundle)]
 pub struct PathBundle {
     pub handler: Handle<SvgAsset>,
+    pub texture: Handle<Image>,
     pub transform: Transform,
 }
 
@@ -110,6 +117,17 @@ impl Default for PathBundle {
     fn default() -> Self {
         Self {
             handler: default(),
+            texture: default(),
+            transform: default(),
+        }
+    }
+}
+
+impl PathBundle {
+    pub fn new() -> Self {
+        Self {
+            handler: default(),
+            texture: default(),
             transform: default(),
         }
     }
