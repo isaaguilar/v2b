@@ -4,7 +4,7 @@ Supply a simple SVG file with a single path to get a `Vec<(x,y)>` of coordinates
 
 ## Image/Path Requirements
 
-To ensure that the image matches the path, set the pixel/in (ppi) or the path to `96.0`. 
+To ensure that the image matches the path, set the pixel/in (ppi) of the path to `96.0`. 
 
 ## Concept
 
