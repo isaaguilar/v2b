@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.14.1"
+bevy = "0.14.2"
 lyon_geom = "1.0.5"
 thiserror = "1.0.63"
 usvg = "0.42.0"

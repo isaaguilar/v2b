@@ -69,7 +69,7 @@ pub struct SvgAssetLoader;
 #[derive(Debug, Error)]
 pub enum SvgAssetLoaderError {
     /// An [IO](std::io) Error
-    #[error("Could not load asset: {0}")]
+    #[error("Could not load asset:: {0}")]
     Io(#[from] std::io::Error),
 }
 
@@ -104,31 +104,45 @@ impl Plugin for SvgPlugin {
     }
 }
 
-/// A Bevy `Bundle` to represent a shape.
+/// A Bevy `Bundle` to represent a shape with a texture.
 #[allow(missing_docs)]
 #[derive(Bundle)]
-pub struct PathBundle {
-    pub handler: Handle<SvgAsset>,
+pub struct SvgTextureBundle {
+    pub svg_handle: Handle<SvgAsset>,
     pub texture: Handle<Image>,
     pub transform: Transform,
 }
 
-impl Default for PathBundle {
+impl Default for SvgTextureBundle {
     fn default() -> Self {
         Self {
-            handler: default(),
+            svg_handle: default(),
             texture: default(),
             transform: default(),
         }
     }
 }
 
-impl PathBundle {
-    pub fn new() -> Self {
-        Self {
-            handler: default(),
-            texture: default(),
-            transform: default(),
-        }
+// impl PathBundle {
+//     pub fn new() -> Self {
+//         Self {
+//             handler: default(),
+//             texture: default(),
+//             transform: default(),
+//         }
+//     }
+// }
+//
+
+/// A Bevy `Bundle` to represent a shape.
+#[allow(missing_docs)]
+#[derive(Bundle)]
+pub struct SvgFile {
+    pub handle: Handle<SvgAsset>,
+}
+
+impl Default for SvgFile {
+    fn default() -> Self {
+        Self { handle: default() }
     }
 }
