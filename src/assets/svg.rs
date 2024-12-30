@@ -11,6 +11,12 @@ pub struct SvgAsset {
     pub dimensions: Vec2,
 }
 
+#[derive(Component, Debug, Default)]
+pub struct SvgAssetHandle(pub Handle<SvgAsset>);
+
+#[derive(Component, Debug, Default)]
+pub struct ImageHandle(pub Handle<Image>);
+
 #[derive(Debug, Default)]
 pub struct SvgPath {
     pub points: Vec<Vec2>,
@@ -77,11 +83,11 @@ impl AssetLoader for SvgAssetLoader {
     type Asset = SvgAsset;
     type Settings = ();
     type Error = SvgAssetLoaderError;
-    async fn load<'a>(
-        &'a self,
-        reader: &'a mut Reader<'_>,
-        _settings: &'a (),
-        _load_context: &'a mut LoadContext<'_>,
+    async fn load(
+        &self,
+        reader: &mut dyn Reader,
+        _settings: &(),
+        _load_context: &mut LoadContext<'_>,
     ) -> Result<Self::Asset, Self::Error> {
         let mut bytes = Vec::new();
         reader.read_to_end(&mut bytes).await?;
@@ -105,11 +111,10 @@ impl Plugin for SvgPlugin {
 }
 
 /// A Bevy `Bundle` to represent a shape with a texture.
-#[allow(missing_docs)]
 #[derive(Bundle)]
 pub struct SvgTextureBundle {
-    pub svg_handle: Handle<SvgAsset>,
-    pub texture: Handle<Image>,
+    pub svg_handle: SvgAssetHandle,
+    pub texture: ImageHandle,
     pub transform: Transform,
 }
 
@@ -123,22 +128,11 @@ impl Default for SvgTextureBundle {
     }
 }
 
-// impl PathBundle {
-//     pub fn new() -> Self {
-//         Self {
-//             handler: default(),
-//             texture: default(),
-//             transform: default(),
-//         }
-//     }
-// }
-//
-
 /// A Bevy `Bundle` to represent a shape.
 #[allow(missing_docs)]
 #[derive(Bundle)]
 pub struct SvgFile {
-    pub handle: Handle<SvgAsset>,
+    pub handle: SvgAssetHandle,
 }
 
 impl Default for SvgFile {
