@@ -4,7 +4,7 @@ use std::{fs::File, io::Read};
 use usvg::{tiny_skia_path::PathSegment, Node, Path, Tree};
 
 pub mod assets;
-pub use assets::svg::{SvgAsset, SvgAssetLoader, SvgPlugin, SvgTextureBundle};
+pub use assets::svg::{SvgAsset, SvgAssetLoader, SvgPlugin, SvgTexture};
 
 const TOLERANCE: f32 = 0.25;
 

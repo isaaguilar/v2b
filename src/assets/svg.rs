@@ -112,18 +112,16 @@ impl Plugin for SvgPlugin {
 
 /// A Bevy `Bundle` to represent a shape with a texture.
 #[derive(Bundle)]
-pub struct SvgTextureBundle {
+pub struct SvgTexture {
     pub svg_handle: SvgAssetHandle,
     pub texture: ImageHandle,
-    pub transform: Transform,
 }
 
-impl Default for SvgTextureBundle {
+impl Default for SvgTexture {
     fn default() -> Self {
         Self {
             svg_handle: default(),
             texture: default(),
-            transform: default(),
         }
     }
 }
